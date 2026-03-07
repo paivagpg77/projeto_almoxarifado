@@ -8,6 +8,9 @@ class Usuario:
         self.email = email
         self.ativo = ativo
         self.criado_em = datetime.now()
+        
+    def gerar_hash(self, senha):
+        return bcrypt.hashpw(senha.encode(), bcrypt.gensalt()).decode()
     def toDict(self):
         return {
             "id": self.id,
