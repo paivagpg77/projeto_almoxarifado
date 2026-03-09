@@ -17,7 +17,10 @@ class Fornecedor:
             raise ValueError ("Telefone Inválido")
         self.telefone = telefone.strip()
 
-        self.ativo = ativo 
+        self.ativo = ativo
+        
+    
+            
 
         
         
