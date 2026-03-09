@@ -19,6 +19,6 @@ class Fornecedor:
 
         self.ativo = ativo 
 
-        #teste cmd 
+
         
         
