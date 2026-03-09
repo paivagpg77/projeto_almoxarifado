@@ -22,6 +22,24 @@ class Fornecedor:
     
             
 
+    def set_email(self , novo_email):
+        if not verify_email.validar_email(novo_email):
+            raise ValueError('Email Inválido')
+        self.email = novo_email.lower()
+
+    @staticmethod
+    def cnpj_igual(cnpj1: str , cnpj2: str)-> bool:
+        def limpar(cnpj):
+            return cnpj.replace(".","").replace("/","").replace("-","")
+        
+        return limpar(cnpj1) == limpar(cnpj2)
+
+    @staticmethod
+    def telefone_igual(tel1: str, tel2: str ) -> bool:
+        def limpar(telefone):
+            return telefone.replace("(", "").replace(")", "").replace("-", "").replace(" ", "")
+        return limpar(tel1) == limpar(tel2)
 
         
+
         
