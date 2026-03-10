@@ -48,6 +48,11 @@ class Produto:
     def desativar(self):
         """Método para desativar o produto"""
         self.ativo = False
+        
+    @staticmethod
+    def verificar_existencia(self, nome: str, nome_categoria: str) -> bool:
+        """Método para verificar se o produto já está cadastrado, comparando nome e categoria."""
+        return self.nome == nome and self.nome_categoria == nome_categoria
     
     def to_dict(self):
         """Método para transformar o objeto em JSON para persistência de dados"""

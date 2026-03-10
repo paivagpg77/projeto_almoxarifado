@@ -17,7 +17,7 @@ class Usuario:
         self.email = email
         self.ativo = ativo
         self.criado_em = criado_em if criado_em else datetime.now()
-    
+
     def validar_senha(self, senha_digitada):
         """Validando senha para login"""
         return bcrypt.checkpw(
@@ -27,7 +27,10 @@ class Usuario:
     def desativar_user(self):
         """Desativar user"""
         self.ativo = False
-    
+    def ativar_user(self):
+        """Ativar user"""
+        self.ativo = True
+        
     def toDict(self):
         """Transformando dados em objetos
         para JSON(utilizado para persistência de dados)"""

@@ -14,7 +14,11 @@ class Categoria:
         
     def desativar(self):
         self.ativo = False
-        
+
+    def verificar_existencia(self, nome: str) -> bool:
+        """Método para verificar se a categoria já está cadastrada, comparando nome."""
+        return self.nome == nome  
+    
     def to_dict(self):
         return {
             "nome": self.nome,
