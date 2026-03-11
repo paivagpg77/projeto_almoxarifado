@@ -13,15 +13,6 @@ class Movimentacao:
         self.tipo = tipo
         self.observacao = observacao
         
-    def aplicar_movimentacao(self, quantidade):
-        """Método para efetivar as transações impostas pela classe produto"""
-        if self.tipo == tipo.TipoTransacao.ENTRADA:
-            Produto.adicionar_estoque(quantidade)
-        
-        if self.tipo == tipo.TipoTransacao.SAIDA:
-            Produto.remover_estoque(quantidade)
-            
-    
     def to_dict(self):
         """Método para transformar o objeto em JSON para persistência de dados"""
         return {
@@ -30,7 +21,7 @@ class Movimentacao:
             "id_produto" : self.id_produto,
             "quantidade": self.quantidade,
             "tipo": self.tipo,
-            "data": datetime.fromisoformat(self.data),
+            "data": self.data.isoformat(),
             "observacoes": self.observacao
         }
     @classmethod    
@@ -41,7 +32,7 @@ class Movimentacao:
             id_produto = data["id_produto"],
             id_usuario = data["id_usuario"],
             quantidade = data["quantidade"],
-            data = datetime.isoformat()
+            data = datetime.fromisoformatdata(data["data"])
         )
 
             

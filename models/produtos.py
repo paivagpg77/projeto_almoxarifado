@@ -4,7 +4,7 @@ class Produto:
     
     
     def __init__(self, nome, descricao, unidade, estoque_minimo, nome_categoria, quantidade_atual = 0, ativo=True, id = None):
-        self.id = id if id else id_generator()
+        self.id = id if id else id_generator.gerar_id()
         self.nome = nome
         self.descricao = descricao
         self.unidade = unidade
@@ -19,7 +19,7 @@ class Produto:
     def nivel_estoque(self):
         """Método utilizado para ver nível do estoque para avisar usuario."""
         if self.quantidade_atual == 0:
-            nivel_estoque.NivelEstoque.SEM_ESTOQUE
+            return nivel_estoque.NivelEstoque.SEM_ESTOQUE
         if self.quantidade_atual <= self.estoque_minimo:
             return nivel_estoque.NivelEstoque.REPOSICAO
         if self.quantidade_atual <= (self.estoque_minimo + self.ALERTA_ESTOQUE):
@@ -48,12 +48,7 @@ class Produto:
     def desativar(self):
         """Método para desativar o produto"""
         self.ativo = False
-        
-    @staticmethod
-    def verificar_existencia(self, nome: str, nome_categoria: str) -> bool:
-        """Método para verificar se o produto já está cadastrado, comparando nome e categoria."""
-        return self.nome == nome and self.nome_categoria == nome_categoria
-    
+
     def to_dict(self):
         """Método para transformar o objeto em JSON para persistência de dados"""
         return {

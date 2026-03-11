@@ -11,8 +11,8 @@ class Usuario:
         if senha_criptografada:
             self.senha = senha
         else:
-            self.senha = hash_generator._gerar_hash()
-        if not verify_email(email):
+            self.senha = hash_generator._gerar_hash(senha)
+        if not verify_email.validar_email(email):
             raise ValueError("Email Inválido")
         self.email = email
         self.ativo = ativo
@@ -31,7 +31,7 @@ class Usuario:
         """Ativar user"""
         self.ativo = True
         
-    def toDict(self):
+    def to_dict(self):
         """Transformando dados em objetos
         para JSON(utilizado para persistência de dados)"""
         return {
