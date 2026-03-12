@@ -1,5 +1,5 @@
 from utils.json_manager import carregar_dados, salvar_dados
-from models.produto import Produto
+from models.produtos import Produto
 
 CAMINHO_PRODUTOS = "../database/produtos.json"
 
@@ -15,6 +15,13 @@ class ProdutoRepository:
         produtos = ProdutoRepository.listar()
         for produto in produtos:
             if produto.id == id:
+                return produto
+        return None
+    @staticmethod
+    def buscar_por_nome(nome: str):
+        produtos = ProdutoRepository.listar()
+        for produto in produtos:
+            if produto.nome == nome:
                 return produto
         return None
     @staticmethod

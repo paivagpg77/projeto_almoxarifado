@@ -3,7 +3,7 @@ from enums import nivel_estoque
 class Produto: 
     
     
-    def __init__(self, nome, descricao, unidade, estoque_minimo, nome_categoria, quantidade_atual = 0, ativo=True, id = None):
+    def __init__(self, nome: str, descricao, unidade, estoque_minimo, nome_categoria: str, quantidade_atual = 0, ativo=True, id = None):
         self.id = id if id else id_generator.gerar_id()
         self.nome = nome
         self.descricao = descricao

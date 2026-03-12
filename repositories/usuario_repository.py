@@ -1,5 +1,5 @@
 from utils.json_manager import carregar_dados, salvar_dados
-from models.usuario import Usuario
+from models.users import Usuario
 CAMINHO_USUARIOS = "../database/usuarios.json"
 
 class UsuarioRepository:
@@ -15,6 +15,13 @@ class UsuarioRepository:
         for usuario in usuarios:
             if usuario.id == id:
                 return usuario
+        return None
+    @staticmethod
+    def buscar_por_email(email: str):
+        usuarios = UsuarioRepository.listar()
+        for u in usuarios:
+            if u.email == email:
+                return u
         return None
     @staticmethod
     def adicionar(usuario: Usuario):

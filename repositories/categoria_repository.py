@@ -1,5 +1,5 @@
 from utils.json_manager import carregar_dados, salvar_dados
-from enums.categoria import Categoria
+from enums.categoriaRegistry import Categoria
 
 CAMINHO_CATEGORIA = "../database/categorias.json"
 class CategoriaRepository:
