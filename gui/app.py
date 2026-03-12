@@ -1,26 +1,15 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import streamlit as st
 import json
 import os
 
 # ---------------- CONFIGURAÇÃO DE ARQUIVOS ----------------
 DATA_DIR = "data"
-
 PRODUTOS_FILE = os.path.join(DATA_DIR, "produtos.json")
 CATEGORIAS_FILE = os.path.join(DATA_DIR, "categorias.json")
 USUARIOS_FILE = os.path.join(DATA_DIR, "usuarios.json")
-
 os.makedirs(DATA_DIR, exist_ok=True)
 
-# ---------------- TEMA VISUAL ----------------
-BG = "#1e1e2f"
-SIDEBAR = "#151521"
-CARD = "#27293d"
-BTN = "#4a90e2"
-BTN_HOVER = "#357ab8"
-TEXT = "#ffffff"
-
-# ---------------- FUNÇÕES JSON ----------------
+# ---------------- FUNÇÕES ----------------
 def load_json(path):
     if not os.path.exists(path):
         return []
@@ -31,434 +20,147 @@ def save_json(path, data):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
-# ---------------- APLICATIVO PRINCIPAL ----------------
-class AlmoxarifadoApp(tk.Tk):
-
-    def __init__(self):
-        super().__init__()
-
-        self.title("Sistema de Almoxarifado")
-        self.geometry("1000x600")
-        self.configure(bg=BG)
-
-        style = ttk.Style()
-        style.theme_use("default")
-
-        style.configure(
-            "Treeview",
-            background="#2a2d3e",
-            foreground="white",
-            rowheight=25,
-            fieldbackground="#2a2d3e"
-        )
-
-        style.map(
-            "Treeview",
-            background=[("selected", "#4a90e2")]
-        )
-
-        container = tk.Frame(self, bg=BG)
-        container.pack(fill="both", expand=True)
-
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-
-        self.frames = {}
-
-        for F in (LoginPage, RegisterPage, Dashboard, ProdutosPage, CategoriasPage):
-            frame = F(container, self)
-            self.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
-
-        self.show_frame(LoginPage)
-
-    def show_frame(self, page):
-        frame = self.frames[page]
-        frame.tkraise()
-
 # ---------------- LOGIN ----------------
-class LoginPage(tk.Frame):
-
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=BG)
-
-        self.controller = controller
-
-        box = tk.Frame(self, bg=CARD, width=350, height=330)
-        box.place(relx=0.5, rely=0.5, anchor="center")
-        box.pack_propagate(False)
-
-        tk.Label(
-            box,
-            text="ALMOXARIFADO MG",
-            bg=CARD,
-            fg="white",
-            font=("Arial", 22, "bold")
-        ).pack(pady=20)
-
-        tk.Label(box, text="Usuário", bg=CARD, fg="white").pack()
-        self.user = tk.Entry(box)
-        self.user.pack(pady=5)
-
-        tk.Label(box, text="Senha", bg=CARD, fg="white").pack()
-        self.password = tk.Entry(box, show="*")
-        self.password.pack(pady=5)
-
-        tk.Button(
-            box,
-            text="Entrar",
-            bg=BTN,
-            fg="white",
-            width=20,
-            height=2,
-            bd=0,
-            command=self.login
-        ).pack(pady=10)
-
-        tk.Button(
-            box,
-            text="Criar conta",
-            bg="#555",
-            fg="white",
-            width=20,
-            command=lambda: controller.show_frame(RegisterPage)
-        ).pack()
-
-    def login(self):
-
-        user = self.user.get()
-        password = self.password.get()
-
+def login_page():
+    st.title("Login")
+    usuario = st.text_input("Usuário", key="login_usuario")
+    senha = st.text_input("Senha", type="password", key="login_senha")
+    
+    if st.button("Entrar"):
         usuarios = load_json(USUARIOS_FILE)
-
         for u in usuarios:
-            if u["usuario"] == user and u["senha"] == password:
-                self.controller.show_frame(Dashboard)
+            if u["usuario"] == usuario and u["senha"] == senha:
+                st.session_state["logged_in"] = True
+                st.session_state["usuario"] = usuario
+                st.session_state["page"] = "dashboard"
+                st.success(f"Bem-vindo {usuario}!")
                 return
+        st.error("Usuário ou senha inválidos")
+    
+    if st.button("Criar conta"):
+        st.session_state["page"] = "register"
 
-        messagebox.showerror("Erro", "Usuário ou senha inválidos")
-
-# ---------------- CADASTRO ----------------
-class RegisterPage(tk.Frame):
-
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=BG)
-
-        self.controller = controller
-
-        box = tk.Frame(self, bg=CARD, width=400, height=420)
-        box.place(relx=0.5, rely=0.5, anchor="center")
-        box.pack_propagate(False)
-
-        tk.Label(
-            box,
-            text="Criar Conta",
-            font=("Arial", 24, "bold"),
-            bg=CARD,
-            fg="white"
-        ).pack(pady=20)
-
-        tk.Label(box, text="Nome", bg=CARD, fg="white").pack()
-        self.nome = tk.Entry(box)
-        self.nome.pack(pady=5)
-
-        tk.Label(box, text="Usuário", bg=CARD, fg="white").pack()
-        self.usuario = tk.Entry(box)
-        self.usuario.pack(pady=5)
-
-        tk.Label(box, text="Senha", bg=CARD, fg="white").pack()
-        self.senha = tk.Entry(box, show="*")
-        self.senha.pack(pady=5)
-
-        tk.Label(box, text="Confirmar Senha", bg=CARD, fg="white").pack()
-        self.confirma = tk.Entry(box, show="*")
-        self.confirma.pack(pady=5)
-
-        tk.Button(
-            box,
-            text="Cadastrar",
-            bg=BTN,
-            fg="white",
-            width=20,
-            height=2,
-            bd=0,
-            command=self.cadastrar
-        ).pack(pady=15)
-
-        tk.Button(
-            box,
-            text="Voltar para Login",
-            bg="#555",
-            fg="white",
-            command=lambda: controller.show_frame(LoginPage)
-        ).pack()
-
-    def cadastrar(self):
-
-        nome = self.nome.get()
-        usuario = self.usuario.get()
-        senha = self.senha.get()
-        confirma = self.confirma.get()
-
+# ---------------- REGISTRO ----------------
+def register_page():
+    st.title("Criar Conta")
+    nome = st.text_input("Nome", key="reg_nome")
+    usuario = st.text_input("Usuário", key="reg_usuario")
+    senha = st.text_input("Senha", type="password", key="reg_senha")
+    confirma = st.text_input("Confirmar Senha", type="password", key="reg_confirma")
+    
+    if st.button("Cadastrar"):
         if not nome or not usuario or not senha:
-            messagebox.showerror("Erro", "Preencha todos os campos")
-            return
-
-        if senha != confirma:
-            messagebox.showerror("Erro", "Senhas não coincidem")
-            return
-
-        usuarios = load_json(USUARIOS_FILE)
-
-        for u in usuarios:
-            if u["usuario"] == usuario:
-                messagebox.showerror("Erro", "Usuário já existe")
-                return
-
-        usuarios.append({
-            "nome": nome,
-            "usuario": usuario,
-            "senha": senha
-        })
-
-        save_json(USUARIOS_FILE, usuarios)
-
-        messagebox.showinfo("Sucesso", "Usuário cadastrado!")
-
-        self.controller.show_frame(LoginPage)
+            st.error("Preencha todos os campos")
+        elif senha != confirma:
+            st.error("Senhas não coincidem")
+        else:
+            usuarios = load_json(USUARIOS_FILE)
+            if any(u["usuario"] == usuario for u in usuarios):
+                st.error("Usuário já existe")
+            else:
+                usuarios.append({"nome": nome, "usuario": usuario, "senha": senha})
+                save_json(USUARIOS_FILE, usuarios)
+                st.success("Usuário cadastrado!")
+    
+    if st.button("Voltar para Login"):
+        st.session_state["page"] = "login"
 
 # ---------------- DASHBOARD ----------------
-class Dashboard(tk.Frame):
+def dashboard():
+    st.sidebar.title(f"Olá, {st.session_state['usuario']}!")
+    menu = ["Produtos", "Categorias", "Logout"]
+    choice = st.sidebar.radio("Menu", menu)
+    
+    if choice == "Produtos":
+        produtos_page()
+    elif choice == "Categorias":
+        categorias_page()
+    elif choice == "Logout":
+        st.session_state["logged_in"] = False
+        st.session_state["page"] = "login"
+        st.experimental_rerun()
 
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=BG)
+# ---------------- PÁGINAS ----------------
+def produtos_page():
+    st.header("Produtos")
+    produtos = load_json(PRODUTOS_FILE)
+    
+    with st.expander("Adicionar / Editar Produto"):
+        nome = st.text_input("Nome do Produto", key="prod_nome")
+        qtd = st.number_input("Quantidade", min_value=0, step=1, key="prod_qtd")
+        editar_idx = st.session_state.get("editar_produto_idx", None)
+        
+        if st.button("Salvar Produto"):
+            if not nome:
+                st.error("Nome obrigatório")
+            else:
+                if editar_idx is not None:
+                    produtos[editar_idx] = {"nome": nome, "quantidade": qtd}
+                    st.session_state["editar_produto_idx"] = None
+                else:
+                    produtos.append({"nome": nome, "quantidade": qtd})
+                save_json(PRODUTOS_FILE, produtos)
+                st.success("Produto salvo!")
 
-        sidebar = tk.Frame(self, bg=SIDEBAR, width=200)
-        sidebar.pack(side="left", fill="y")
+    if produtos:
+        for idx, p in enumerate(produtos):
+            col1, col2, col3, col4 = st.columns([3,1,1,1])
+            col1.write(p["nome"])
+            col2.write(p["quantidade"])
+            if col3.button("Editar", key=f"edit_prod_{idx}"):
+                st.session_state["prod_nome"] = p["nome"]
+                st.session_state["prod_qtd"] = p["quantidade"]
+                st.session_state["editar_produto_idx"] = idx
+            if col4.button("Excluir", key=f"del_prod_{idx}"):
+                produtos.pop(idx)
+                save_json(PRODUTOS_FILE, produtos)
+                st.success("Produto excluído!")
 
-        content = tk.Frame(self, bg=BG)
-        content.pack(side="right", fill="both", expand=True)
+def categorias_page():
+    st.header("Categorias")
+    categorias = load_json(CATEGORIAS_FILE)
+    
+    with st.expander("Adicionar / Editar Categoria"):
+        nome = st.text_input("Nome da Categoria", key="cat_nome")
+        desc = st.text_input("Descrição", key="cat_desc")
+        editar_idx = st.session_state.get("editar_cat_idx", None)
+        
+        if st.button("Salvar Categoria"):
+            if not nome:
+                st.error("Nome obrigatório")
+            else:
+                if editar_idx is not None:
+                    categorias[editar_idx] = {"nome": nome, "descricao": desc}
+                    st.session_state["editar_cat_idx"] = None
+                else:
+                    categorias.append({"nome": nome, "descricao": desc})
+                save_json(CATEGORIAS_FILE, categorias)
+                st.success("Categoria salva!")
 
-        tk.Label(
-            sidebar,
-            text="ALMOX",
-            bg=SIDEBAR,
-            fg="white",
-            font=("Arial", 20, "bold")
-        ).pack(pady=30)
+    if categorias:
+        for idx, c in enumerate(categorias):
+            col1, col2, col3, col4 = st.columns([3,3,1,1])
+            col1.write(c["nome"])
+            col2.write(c["descricao"])
+            if col3.button("Editar", key=f"edit_cat_{idx}"):
+                st.session_state["cat_nome"] = c["nome"]
+                st.session_state["cat_desc"] = c["descricao"]
+                st.session_state["editar_cat_idx"] = idx
+            if col4.button("Excluir", key=f"del_cat_{idx}"):
+                categorias.pop(idx)
+                save_json(CATEGORIAS_FILE, categorias)
+                st.success("Categoria excluída!")
 
-        tk.Button(
-            sidebar,
-            text="Produtos",
-            bg=BTN,
-            fg="white",
-            width=18,
-            height=2,
-            bd=0,
-            command=lambda: controller.show_frame(ProdutosPage)
-        ).pack(pady=10)
+# ---------------- INICIAL ----------------
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+if "page" not in st.session_state:
+    st.session_state["page"] = "login"
 
-        tk.Button(
-            sidebar,
-            text="Categorias",
-            bg=BTN,
-            fg="white",
-            width=18,
-            height=2,
-            bd=0,
-            command=lambda: controller.show_frame(CategoriasPage)
-        ).pack(pady=10)
-
-        tk.Button(
-            sidebar,
-            text="Sair",
-            bg="#444",
-            fg="white",
-            width=18,
-            height=2,
-            bd=0,
-            command=lambda: controller.show_frame(LoginPage)
-        ).pack(pady=10)
-
-        tk.Label(
-            content,
-            text="Dashboard",
-            font=("Arial", 28, "bold"),
-            bg=BG,
-            fg="white"
-        ).pack(pady=30)
-
-        self.produtos = tk.Label(
-            content,
-            text=f"Produtos cadastrados: {len(load_json(PRODUTOS_FILE))}",
-            font=("Arial", 16),
-            bg=BG,
-            fg="white"
-        )
-        self.produtos.pack(pady=10)
-
-        self.categorias = tk.Label(
-            content,
-            text=f"Categorias cadastradas: {len(load_json(CATEGORIAS_FILE))}",
-            font=("Arial", 16),
-            bg=BG,
-            fg="white"
-        )
-        self.categorias.pack(pady=10)
-
-# ---------------- CATEGORIAS ----------------
-class CategoriasPage(tk.Frame):
-
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=BG)
-
-        tk.Label(self, text="Categorias", font=("Arial", 22), bg=BG, fg="white").pack(pady=10)
-
-        form = tk.Frame(self, bg=BG)
-        form.pack()
-
-        tk.Label(form, text="Nome", bg=BG, fg="white").grid(row=0, column=0)
-        self.nome = tk.Entry(form)
-        self.nome.grid(row=0, column=1)
-
-        tk.Label(form, text="Descrição", bg=BG, fg="white").grid(row=1, column=0)
-        self.desc = tk.Entry(form)
-        self.desc.grid(row=1, column=1)
-
-        tk.Button(
-            form,
-            text="Cadastrar",
-            bg=BTN,
-            fg="white",
-            bd=0,
-            command=self.add_categoria
-        ).grid(row=2, columnspan=2, pady=10)
-
-        self.tree = ttk.Treeview(self, columns=("nome", "descricao"), show="headings")
-
-        self.tree.heading("nome", text="Nome")
-        self.tree.heading("descricao", text="Descrição")
-
-        self.tree.pack(fill="both", expand=True, pady=10)
-
-        tk.Button(
-            self,
-            text="Voltar",
-            bg=BTN,
-            fg="white",
-            command=lambda: controller.show_frame(Dashboard)
-        ).pack(pady=10)
-
-        self.refresh()
-
-    def add_categoria(self):
-
-        nome = self.nome.get()
-        desc = self.desc.get()
-
-        if not nome:
-            messagebox.showerror("Erro", "Nome obrigatório")
-            return
-
-        categorias = load_json(CATEGORIAS_FILE)
-
-        categorias.append({
-            "nome": nome,
-            "descricao": desc
-        })
-
-        save_json(CATEGORIAS_FILE, categorias)
-
-        self.nome.delete(0, tk.END)
-        self.desc.delete(0, tk.END)
-
-        self.refresh()
-
-    def refresh(self):
-
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-
-        for c in load_json(CATEGORIAS_FILE):
-            self.tree.insert("", "end", values=(c["nome"], c["descricao"]))
-
-# ---------------- PRODUTOS ----------------
-class ProdutosPage(tk.Frame):
-
-    def __init__(self, parent, controller):
-        super().__init__(parent, bg=BG)
-
-        tk.Label(self, text="Produtos", font=("Arial", 22), bg=BG, fg="white").pack(pady=10)
-
-        form = tk.Frame(self, bg=BG)
-        form.pack()
-
-        tk.Label(form, text="Nome", bg=BG, fg="white").grid(row=0, column=0)
-        self.nome = tk.Entry(form)
-        self.nome.grid(row=0, column=1)
-
-        tk.Label(form, text="Quantidade", bg=BG, fg="white").grid(row=1, column=0)
-        self.qtd = tk.Entry(form)
-        self.qtd.grid(row=1, column=1)
-
-        tk.Button(
-            form,
-            text="Cadastrar",
-            bg=BTN,
-            fg="white",
-            bd=0,
-            command=self.add_produto
-        ).grid(row=2, columnspan=2, pady=10)
-
-        self.tree = ttk.Treeview(self, columns=("nome", "qtd"), show="headings")
-
-        self.tree.heading("nome", text="Nome")
-        self.tree.heading("qtd", text="Quantidade")
-
-        self.tree.pack(fill="both", expand=True, pady=10)
-
-        tk.Button(
-            self,
-            text="Voltar",
-            bg=BTN,
-            fg="white",
-            command=lambda: controller.show_frame(Dashboard)
-        ).pack(pady=10)
-
-        self.refresh()
-
-    def add_produto(self):
-
-        nome = self.nome.get()
-        qtd = self.qtd.get()
-
-        if not nome or not qtd.isdigit():
-            messagebox.showerror("Erro", "Dados inválidos")
-            return
-
-        produtos = load_json(PRODUTOS_FILE)
-
-        produtos.append({
-            "nome": nome,
-            "quantidade": int(qtd)
-        })
-
-        save_json(PRODUTOS_FILE, produtos)
-
-        self.nome.delete(0, tk.END)
-        self.qtd.delete(0, tk.END)
-
-        self.refresh()
-
-    def refresh(self):
-
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-
-        for p in load_json(PRODUTOS_FILE):
-            self.tree.insert("", "end", values=(p["nome"], p["quantidade"]))
-
-# ---------------- EXECUÇÃO ----------------
-if __name__ == "__main__":
-    app = AlmoxarifadoApp()
-    app.mainloop()
+if not st.session_state["logged_in"]:
+    if st.session_state["page"] == "login":
+        login_page()
+    else:
+        register_page()
+else:
+    dashboard()
